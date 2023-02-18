@@ -9,8 +9,8 @@ import com.driver.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Date;
+//import java.util.ArrayList;
+//import java.util.Date;
 import java.util.List;
 
 @Service
@@ -21,13 +21,35 @@ public class BlogService {
     @Autowired
     UserRepository userRepository1;
 
+    @Autowired
+    ImageRepository imageRepository;
+
     public Blog createAndReturnBlog(Integer userId, String title, String content) {
         //create a blog at the current time
+        User user = userRepository1.findById(userId).get();
+        Blog blog = new Blog();
+        blog.setTitle(title);
+        blog.setContent(content);
+        blog.setUser(user);
 
+
+        //adding blogs to the user
+//        List<Blog> blogList = user.getBlogsMade();
+//        blogList.add(blog);
+        user.getBlogsMade().add(blog);
+        userRepository1.save(user);
+        return blog;
     }
 
     public void deleteBlog(int blogId){
         //delete blog and corresponding images
+        Blog blog = blogRepository1.findById(blogId).get();
+        List<Image> imagesOfBlog = blog.getImagesList();
+        for(Image i:imagesOfBlog){
+            imagesOfBlog.remove(i);
+            imageRepository.delete(i);
+        }
 
+        blogRepository1.deleteById(blogId);
     }
 }
